@@ -6,7 +6,8 @@ const router = express.Router();
 
 router.post("/create", controller.createFamiy);
 
-router.get("/get/:familyId", controller.fetchFamily);
+router.post("/family/", controller.fetchFamily);
+
 router.get("/get/", controller.fetchFamilies);
 
 router.patch("/update/:familyId", controller.updateFamily);

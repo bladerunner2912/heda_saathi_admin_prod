@@ -6,7 +6,9 @@ import Logging from "./library/Logging";
 import userRoutes from "./routes/user";
 import familyRoutes from "./routes/family";
 
+
 const router = express();
+var io;
 
 mongoose
   .connect(config.mongo.url)
@@ -15,7 +17,7 @@ mongoose
     startServer();
   })
   .catch((error) => {
-    Logging.error(`Unable to connect to datanbase`);
+    Logging.error(`Unable to connect to datanbase ${error}`);
   });
 
 const startServer = () => {
@@ -50,7 +52,6 @@ const startServer = () => {
       res.header("Access-Control-Allow-Methods", "PUT,POST,PATCH,DELETE,GET");
       return res.status(200).json({});
     }
-
     next();
   });
 
@@ -71,9 +72,21 @@ const startServer = () => {
     return res.status(404).json({ message: error.message });
   });
 
-  http
+ var servers =  http
     .createServer(router)
     .listen(config.server.port, () =>
+    {  
       Logging.info(`Server is running on port ${config.server.port}`)
-    );
+
+       });
+
+
+io = require("socket.io")(servers);
+    io.on("connect",(socket: any) => {
+      console.log(socket.id);
+      console.log('connected')
+      socket.on('/test',(msg :String) => {
+          console.log(msg);
+     })
+});
 };

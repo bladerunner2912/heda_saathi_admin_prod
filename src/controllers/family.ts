@@ -19,24 +19,34 @@ const createFamiy = async (req: Request, res: Response) => {
 };
 
 const fetchFamily = async (req: Request, res: Response) => {
-  return await Family.findById(req.params.familyId)
-    .then((family) => res.send(200).json({ family }))
-    .catch((error) => {
-      Logging.error(error);
-      res.send(500).json({ error });
-    });
+  const familyId = req.body.familyId;
+  let family: any = undefined;
+  try {
+    family = await Family.findOne(req.body.familyId);
+    if (family) {
+      res.status(200).json({ family });
+      return;
+    } else {
+      res.status(500).json({ "Message": `No Family Exists` });
+      return
+    }
+  } catch (e) {
+    Logging.error(e);
+    res.status(500).json({ "message": e });
+    return;
+  }
 };
 
 const fetchFamilies = async (req: Request, res: Response) => {
   return await Family.find()
-    .then((families) => res.send(200).json({ families }))
+    .then((families) => res.sendStatus(200).json({ families }))
     .catch((error) => {
       Logging.error(error);
-      res.send(500).json({ error });
+      res.sendStatus(500).json({ error });
     });
 };
 
-const delteFamily = async (req: Request, res: Response) => {
+const deleteFamily = async (req: Request, res: Response) => {
   return await Family.findByIdAndDelete(req.params.id)
     .then((family) =>
       res.send(200).json({ message: "Family Deleted Succesfully" })
@@ -68,7 +78,7 @@ const updateFamily = async (req: Request, res: Response) => {
 
 export default {
   fetchFamily,
-  delteFamily,
+  delteFamily: deleteFamily,
   createFamiy,
   fetchFamilies,
   updateFamily,

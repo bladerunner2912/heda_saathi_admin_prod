@@ -1,9 +1,295 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, response, Response } from "express";
 
 import mongoose from "mongoose";
 import Logging from "../library/Logging";
+import { createAccessToken } from "../middleware/auth.middlewares";
 
 import User from "../models/user";
+
+
+//CLIENT SIDE APIS
+
+
+//loginUser
+const loginUser = (
+  async (req: Request, res: Response, next: NextFunction) => {
+
+    const phone = req.body.phone;
+    if (phone == '') {
+      res.status(500).json({ message: 'No Number Provided' });
+    }
+
+    try {
+      const user = await User.findOne({ phone: phone });
+
+      if (user) { res.status(200).json({ user, accessToken: await createAccessToken(user._id) }); }
+    } catch (e) {
+      Logging.error(e);
+      res.status(400).json({ message: "Authentication Failed" });
+    }
+  })
+
+
+//searchMemebrs
+const searchMembers = (
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      let date = new Date(req.body.birth);
+
+      let users: any[] = [];
+      let fetchedUsers = await User.find({ ...req.body });
+      let placeFetchedUsers = [];
+      // Logging.info(req.body.city);
+
+      // ? city filter compares with the address state pincode
+      if (req.body.city) {
+        let place = req.body.city;
+        for (var i = 0; i < fetchedUsers.length; i++) {
+          let temp = fetchedUsers[i];
+          if (temp['city'] != place || temp['state'] != place || temp['pincode'] != place) {
+            Logging.info(temp);
+            continue;
+          } else {
+            placeFetchedUsers.push(temp);
+          }
+        }
+        fetchedUsers = placeFetchedUsers;
+      }
+      // Logging.info(fetchedUsers);
+      for (var i = 0; i < fetchedUsers.length; i++) {
+
+        users.push(
+          {
+            'userId': fetchedUsers[i]['_id'],
+            'name': fetchedUsers[i]['name'],
+            'phone': fetchedUsers[i]['phone'],
+            'place': `${fetchedUsers[i]['city']},${fetchedUsers[i]['state']},${fetchedUsers[i]['pincode']}`,
+            'profession': fetchedUsers[i]['profession'],
+            'gender': fetchedUsers[i]['gender'],
+            'email': fetchedUsers[i]['email'],
+            'avatar': fetchedUsers[i]['avatar'],
+            'dob': fetchedUsers[i]['dob'],
+          }
+        );
+      }
+      res.status(200).json({ users });
+
+    } catch (e) {
+      Logging.error(e);
+      res.status(400).json({ message: `${e}` });
+    }
+  }
+)
+
+//fetchMembers
+const fetchMembers = (
+  async (req: Request, res: Response, next: NextFunction) => {
+
+    let ids: Array<string> = req.body.ids;
+    let objectId: Array<mongoose.Types.ObjectId> = [];
+    console.log(req.body.ids);
+    let saathis: Array<any> = [];
+
+    // for (var id in ids) {
+    //   objectId.push(new mongoose.Types.ObjectId(`${id}`));
+    // }
+
+    if (ids.length > 0)
+      try {
+        const users = await User.find({
+          "_id": {
+            $in: ids,
+          }
+        });
+        for (var i = 0; i < users.length; i++) {
+
+          saathis.push(
+            {
+              'userId': users[i]['_id'],
+              'name': users[i]['name'],
+              'phone': users[i]['phone'],
+              'place': `${users[i]['city']},${users[i]['state']},${users[i]['pincode']}`,
+              'profession': users[i]['profession'],
+              'gender': users[i]['gender'],
+              'email': users[i]['email'],
+              'avatar': users[i]['avatar'],
+              'dob': users[i]['dob'],
+            }
+          );
+        }
+        res.status(200).json({ saathis });
+      } catch (e) {
+        Logging.error(e);
+        res.status(400).json({ message: `${e}` });
+      }
+  }
+);
+
+
+
+const fetchBirthdayAnniversay = (async (req: Request, res: Response, next: NextFunction) => {
+
+  let presentEvents: Array<any> = [];
+  let upcomingEvents: Array<any> = [];
+  let pastEvents: Array<any> = [];
+  let presentEventsLength;
+  let pastEventsLength;
+  const today = new Date();
+  const todayDay = today.getDate();
+  const todayMonth = today.getMonth();
+
+  console.log(today);
+  console.log(todayDay);
+  console.log(todayMonth);
+
+  try {
+    // ! Error in the todayDay-1 cause my time has been weirdly stored 2022-12-28T18:30:00.000Z in such format. That 18:30 is making it give next dat from getDate() method.
+    let users = await User.find({
+      $and: [
+        { $expr: { $eq: [{ $dayOfMonth: "$dob" }, todayDay] } },
+        { $expr: { $eq: [{ $month: "$dob" }, todayMonth + 1] } }
+      ]
+    });
+
+    for (var i = 0; i < users.length; i++) {
+      presentEvents.push(
+        {
+          'userId': users[i]['_id'],
+          'name': users[i]['name'],
+          'phone': users[i]['phone'],
+          'place': `${users[i]['city']},${users[i]['state']},${users[i]['pincode']}`,
+          'profession': users[i]['profession'],
+          'gender': users[i]['gender'],
+          'email': users[i]['email'],
+          'avatar': users[i]['avatar'],
+          'dob': users[i]['dob'],
+        }
+      );
+    }
+
+    users = await User.find({
+      $and: [
+        { $expr: { $lte: [{ $dayOfMonth: "$dob" }, todayDay] } },
+        { $expr: { $gte: [{ $dayOfMonth: "$dob" }, todayDay - 5] } },
+        { $expr: { $eq: [{ $month: "$dob" }, todayMonth + 1] } }
+      ]
+    });
+
+    for (var i = 0; i < users.length; i++) {
+      pastEvents.push(
+        {
+          'userId': users[i]['_id'],
+          'name': users[i]['name'],
+          'phone': users[i]['phone'],
+          'place': `${users[i]['city']},${users[i]['state']},${users[i]['pincode']}`,
+          'profession': users[i]['profession'],
+          'gender': users[i]['gender'],
+          'email': users[i]['email'],
+          'avatar': users[i]['avatar'],
+          'dob': users[i]['dob'],
+        }
+      );
+    }
+
+    presentEventsLength = presentEvents.length;
+    pastEventsLength = pastEvents.length;
+
+    users = await User.find({
+      $and: [
+        { $expr: { $gt: [{ $dayOfMonth: "$dob" }, todayDay] } },
+        { $expr: { $eq: [{ $month: "$dob" }, todayMonth + 1] } }
+      ]
+    }).sort("1").limit(10 - pastEventsLength - presentEventsLength);
+
+    for (var i = 0; i < users.length; i++) {
+      upcomingEvents.push(
+        {
+          'userId': users[i]['_id'],
+          'name': users[i]['name'],
+          'phone': users[i]['phone'],
+          'place': `${users[i]['city']},${users[i]['state']},${users[i]['pincode']}`,
+          'profession': users[i]['profession'],
+          'gender': users[i]['gender'],
+          'email': users[i]['email'],
+          'avatar': users[i]['avatar'],
+          'dob': users[i]['dob'],
+        }
+      );
+    }
+
+    if (pastEventsLength + presentEventsLength + upcomingEvents.length < 10) {
+      users = await User.find({
+        $and: [
+          { $expr: { $gt: [{ $month: "$dob" }, todayMonth + 1] } }
+        ]
+      }).sort("1").limit(10 - pastEventsLength - presentEventsLength - upcomingEvents.length);
+    }
+
+    for (var i = 0; i < users.length; i++) {
+      upcomingEvents.push(
+        {
+          'userId': users[i]['_id'],
+          'name': users[i]['name'],
+          'phone': users[i]['phone'],
+          'place': `${users[i]['city']},${users[i]['state']},${users[i]['pincode']}`,
+          'profession': users[i]['profession'],
+          'gender': users[i]['gender'],
+          'email': users[i]['email'],
+          'avatar': users[i]['avatar'],
+          'dob': users[i]['dob'],
+        }
+      );
+    }
+
+    res.status(200).json({ presentEvents, pastEvents, upcomingEvents });
+
+  } catch (e) {
+    Logging.error(e);
+    res.status(400).json({ message: `${e}` });
+  }
+})
+
+
+// const changeprofessionfieldquery = (
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//       await User.updateMany({ "profession ": { $exists: true } }, { $rename: { "profession ": "profession" } });
+//       res.status(200).json({ message: 'Sucess' });
+//     } catch (e) {
+//       Logging.error(e);
+//       res.status(400).json({ message: `${e}` });
+//     }
+//   }
+// )
+
+//editUser
+const editUser = (
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+      await User.findByIdAndUpdate(...req.params.id, {
+        ...req.body
+      });
+
+
+    } catch (e) {
+      Logging.error(e);
+      res.status(400).json({ message: e })
+    }
+  }
+);
+
+
+
+
+////////////////////////////////////////////////////
+
+
+
+
+
+
+/// ? ADMIN SIDE
 
 const createUser = async (req: Request, res: Response) => {
   const user = new User({
@@ -43,7 +329,7 @@ const findAllUser = async (req: Request, res: Response) => {
   }
 };
 
-function updateUser(req: Request, res: Response) {
+const updateUser = async (req: Request, res: Response) => {
   const uid = req.params.userId;
 
   return User.findById(uid)
@@ -79,4 +365,4 @@ const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
-export default { deleteUser, createUser, updateUser, findUser, findAllUser };
+export default { deleteUser, createUser, updateUser, findUser, findAllUser, loginUser, searchMembers, fetchMembers, fetchBirthdayAnniversay };

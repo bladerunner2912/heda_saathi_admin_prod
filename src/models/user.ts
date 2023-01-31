@@ -10,9 +10,9 @@ export interface IUser {
   state: String;
   pincode: String;
   gender: String;
-  dob: String;
+  dob: Date;
   married: String;
-  _familyId: Types.ObjectId;
+  familyId: Types.ObjectId;
   avatar: String;
   createdAt: Date;
   profession: String;
@@ -27,7 +27,7 @@ const UserSchema: Schema = new Schema(
     phone: { type: String, required: true },
     address: { type: String },
     gender: { type: String, default: "Male" },
-    dob: { type: String },
+    dob: { type: Date },
     married: { type: String, default: "Married" },
     familyId: { type: Schema.Types.ObjectId, ref: "Family" },
     avatar: { type: String },
