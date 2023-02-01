@@ -8,7 +8,6 @@ import familyRoutes from "./routes/family";
 
 
 const router = express();
-var io;
 
 mongoose
   .connect(config.mongo.url)
@@ -81,12 +80,12 @@ const startServer = () => {
        });
 
 
-io = require("socket.io")(servers);
-    io.on("connect",(socket: any) => {
-      console.log(socket.id);
-      console.log('connected')
-      socket.on('/test',(msg :String) => {
-          console.log(msg);
-     })
-});
+// io = require("socket.io")(servers);
+//     io.on("connect",(socket: any) => {
+//       console.log(socket.id);
+//       console.log('connected')
+//       socket.on('/test',(msg :String) => {
+//           console.log(msg);
+//      })
+// });
 };
