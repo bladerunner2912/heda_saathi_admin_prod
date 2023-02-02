@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/server",
   "scripts": {
-    "build": "npm install --only=dev && tsc",
+    "build": "del dist  && tsc",
     "start": "node dist/server.js"
   },
   "repository": {
