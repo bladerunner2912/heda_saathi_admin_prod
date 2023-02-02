@@ -1,5 +1,4 @@
-import chalk from 'chalk';
-
+const chalk = require("chalk");
 export default class Logging {
   public static log = (args: any) => this.info(args);
   public static info = (args: any) => {
