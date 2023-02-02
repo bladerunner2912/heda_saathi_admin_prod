@@ -5,14 +5,11 @@ import { config } from "./config";
 import Logging from "./library/Logging";
 import userRoutes from "./routes/user";
 import familyRoutes from "./routes/family";
-import { MongoClient } from 'mongodb';
 
 const router = express();
 
-const client = new MongoClient(config.mongo.url);
-
-client
-  .connect()
+mongoose
+  .connect(config.mongo.url)
   .then(() => {
     Logging.info("Connected To Database");
     startServer();
