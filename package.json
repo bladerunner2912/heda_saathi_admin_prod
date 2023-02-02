@@ -4,9 +4,7 @@
   "description": "",
   "main": "dist/server",
   "scripts": {
-    "postinstall": "npm install --only=dev",
-    "install": "npm i",
-    "build": "tsc",
+    "build": "npm install --only=dev && tsc",
     "start": "node dist/server.js"
   },
   "repository": {
