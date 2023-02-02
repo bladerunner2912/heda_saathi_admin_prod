@@ -2,10 +2,10 @@
   "name": "heda_saathi_admin",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/server",
+  "main": "src/server.ts",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "ts-node src/server"
+    
   },
   "repository": {
     "type": "git",
