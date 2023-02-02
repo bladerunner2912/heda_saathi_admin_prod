@@ -20,6 +20,7 @@
   "homepage": "https://github.com/bladerunner2912/heda_saathi_admin#readme",
   "dependencies": {
     "@typegoose/typegoose": "^10.0.0",
+    "chalk": "^5.2.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
