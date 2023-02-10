@@ -1,13 +1,10 @@
 import axios from "axios";
 import { NextFunction, Request, response, Response } from "express";
-
 import mongoose from "mongoose";
-import { hostname } from "os";
 import { config } from "../config";
 import Logging from "../library/Logging";
-import otpGenerator from "../library/otpGenerator";
+import otpGenerator from "../library/OtpGenerator";
 import { createAccessToken } from "../middleware/auth.middlewares";
-
 import User from "../models/user";
 
 
@@ -31,7 +28,7 @@ const loginUser = (
       Logging.error(e);
       res.status(400).json({ message: "Authentication Failed" });
     }
-  })
+  });
 
 
 //searchMemebrs
@@ -224,7 +221,8 @@ const fetchBirthdayAnniversay = (async (req: Request, res: Response, next: NextF
     if (pastEventsLength + presentEventsLength + upcomingEvents.length < 10) {
       users = await User.find({
         $and: [
-          { $expr: { $gt: [{ $month: "$dob" }, todayMonth + 1] } }
+          { $expr: { $gt: [{ $month: "$dob" }, todayMonth + 1] } },
+          { $expr: { $lt: [{ $month: "$dob" }, todayMonth + 7] } }
         ]
       }).sort("1").limit(10 - pastEventsLength - presentEventsLength - upcomingEvents.length);
     }
@@ -244,9 +242,7 @@ const fetchBirthdayAnniversay = (async (req: Request, res: Response, next: NextF
         }
       );
     }
-
     res.status(200).json({ presentEvents, pastEvents, upcomingEvents });
-
   } catch (e) {
     Logging.error(e);
     res.status(400).json({ message: `${e}` });

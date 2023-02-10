@@ -22,17 +22,17 @@ const fetchFamily = async (req: Request, res: Response) => {
   const familyId = req.body.familyId;
   let family: any = undefined;
   try {
-    family = await Family.findOne({ _id: familyId });
+    family = await Family.find(familyId);
     if (family) {
       res.status(200).json({ family });
       return;
     } else {
-      res.status(500).json({ "Message": `No Family Exists` });
+      res.status(200).json({ "Message": `No Family Exists` });
       return
     }
   } catch (e) {
     Logging.error(e);
-    res.status(500).json({ "message": e });
+    res.status(400).json({ "message": e });
     return;
   }
 };
@@ -58,7 +58,7 @@ const deleteFamily = async (req: Request, res: Response) => {
 };
 
 const updateFamily = async (req: Request, res: Response) => {
-  return await Family.findById(req.params.familyId)
+  return await Family.findById(req.params.id)
     .then(async (family) => {
       if (family) {
         await family.update({ ...req.body });
