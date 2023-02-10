@@ -12,6 +12,6 @@ router.get("/get/", controller.fetchFamilies);
 
 router.patch("/update/:familyId", controller.updateFamily);
 
-router.delete("/delete/:familyId", controller.delteFamily);
+router.delete("/delete/:familyId", controller.deleteFamily);
 
 export = router;

@@ -22,7 +22,7 @@ const fetchFamily = async (req: Request, res: Response) => {
   const familyId = req.body.familyId;
   let family: any = undefined;
   try {
-    family = await Family.findOne(req.body.familyId);
+    family = await Family.findOne({ _id: familyId });
     if (family) {
       res.status(200).json({ family });
       return;
@@ -78,7 +78,7 @@ const updateFamily = async (req: Request, res: Response) => {
 
 export default {
   fetchFamily,
-  delteFamily: deleteFamily,
+  deleteFamily,
   createFamiy,
   fetchFamilies,
   updateFamily,
