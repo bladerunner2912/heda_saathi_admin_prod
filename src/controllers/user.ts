@@ -1,7 +1,11 @@
+import axios from "axios";
 import { NextFunction, Request, response, Response } from "express";
 
 import mongoose from "mongoose";
+import { hostname } from "os";
+import { config } from "../config";
 import Logging from "../library/Logging";
+import otpGenerator from "../library/otpGenerator";
 import { createAccessToken } from "../middleware/auth.middlewares";
 
 import User from "../models/user";
@@ -126,7 +130,7 @@ const fetchMembers = (
 );
 
 
-
+//fetchBirthdayAnniversary
 const fetchBirthdayAnniversay = (async (req: Request, res: Response, next: NextFunction) => {
 
   let presentEvents: Array<any> = [];
@@ -249,6 +253,32 @@ const fetchBirthdayAnniversay = (async (req: Request, res: Response, next: NextF
   }
 })
 
+const sendOtp = (async (req: Request, res: Response, next: NextFunction) => {
+
+
+  const phoneNumber = req.body.phone;
+  const otp = otpGenerator();
+  console.log(req.body);
+  console.log(phoneNumber);
+  try {
+    const response = await axios.get(
+      `https://www.fast2sms.com/dev/bulkV2?authorization=${config.otp.apiKey}&sender_id=FSTSMS&message=Your%20OTP%20is%20${otp}&language=english&route=p&numbers=${phoneNumber}`,
+    );
+    console.log(response.data);
+    res.status(200).json({ otp });
+  } catch (error) {
+    res.status(400)
+    console.error(error);
+  }
+}
+);
+
+
+
+
+
+
+
 
 // const changeprofessionfieldquery = (
 //   async (req: Request, res: Response, next: NextFunction) => {
@@ -289,7 +319,7 @@ const editUser = (
 
 
 
-/// ? ADMIN SIDE
+// ? ADMIN SIDE
 
 const createUser = async (req: Request, res: Response) => {
   const user = new User({
@@ -331,26 +361,21 @@ const findAllUser = async (req: Request, res: Response) => {
 
 const updateUser = async (req: Request, res: Response) => {
   const uid = req.params.userId;
-
-  return User.findById(uid)
-    .then((user) => {
-      if (user) {
-        user.set(req.body);
-
-        return user
-          .save()
-          .then((user) => {
-            res.status(201).json({ user });
-          })
-          .catch((e) => {
-            res.status(500).json({ e });
-          });
-      }
-    })
-    .catch((e) => {
-      res.status(500).json({ e });
-    });
+  Logging.info(uid.slice(1));
+  const avatar = req.body.avatar;
+  Logging.info(avatar);
+  var filter = { "_id": new mongoose.Types.ObjectId(uid.slice(1)) };
+  var update = { "avatar": avatar }
+  Logging.info(filter);
+  try {
+    await User.findOneAndUpdate(filter, update);
+    res.status(200).json({ message: 'Working bitch' });
+  } catch (e) {
+    Logging.error(e);
+  }
 }
+
+
 
 const deleteUser = async (req: Request, res: Response) => {
   const uid = req.params.userId;
@@ -365,4 +390,4 @@ const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
-export default { deleteUser, createUser, updateUser, findUser, findAllUser, loginUser, searchMembers, fetchMembers, fetchBirthdayAnniversay };
+export default { deleteUser, createUser, updateUser, findUser, findAllUser, loginUser, searchMembers, fetchMembers, fetchBirthdayAnniversay, sendOtp, };

@@ -1,32 +1,27 @@
 import mongoose, { Types, Document, Schema } from "mongoose";
+export interface IAdvertisment {
 
-export interface IAdvertisment{
- 
-    imageBanner : String,
-    advertismentLink : String,
+    posterUrl: String,
+    advertismentLink: String,
 }
 
+export interface IAdvertismentModel extends IAdvertisment, Document { };
 
+const AdvertismentSchema: Schema = new Schema(
+    {
 
-export interface IAdvertismentModel extends IAdvertisment, Document {};
+        posterUrl: { type: String, required: true },
+        advertismentLink: { type: String, required: true }
+    },
+    {
 
+        timestamps: {
+            createdAt: "created_At"
+        }
 
-
-const AdvertismentSchema : Schema = new Schema(
-{
-
-    imageBanner : {type : String, required : true},
-    advertismentLink : {type : String, required : true} 
-},
-{
-
-    timestamps : {
-        createdAt : "created_At"
     }
-
-}
 );
 
+const Advertisment = mongoose.model("Advertisment", AdvertismentSchema);
 
-export default mongoose.model("Advertisment", AdvertismentSchema);
-
+export default Advertisment;
