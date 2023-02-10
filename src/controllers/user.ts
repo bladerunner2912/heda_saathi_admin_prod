@@ -3,7 +3,7 @@ import { NextFunction, Request, response, Response } from "express";
 import mongoose from "mongoose";
 import { config } from "../config";
 import Logging from "../library/Logging";
-import { otpGenerator } from "../library/OtpGenerator";
+import otpGenerator from "../library/otp";
 import { createAccessToken } from "../middleware/auth.middlewares";
 import User from "../models/user";
 
