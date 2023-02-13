@@ -249,6 +249,23 @@ const fetchBirthdayAnniversay = (async (req: Request, res: Response, next: NextF
   }
 })
 
+
+const checkUserExists = (async (req: Request, res: Response, next: NextFunction) => {
+
+  try {
+
+    const user = await User.findOne({ ...req.body });
+
+    if (user) {
+      res.status(200).json(true);
+      return;
+    }
+    res.status(200).json(false);
+  } catch (e) {
+    res.status(400).json(false);
+  }
+});
+
 const sendOtp = (async (req: Request, res: Response, next: NextFunction) => {
 
 
@@ -386,4 +403,4 @@ const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
-export default { deleteUser, createUser, updateUser, findUser, findAllUser, loginUser, searchMembers, fetchMembers, fetchBirthdayAnniversay, sendOtp, };
+export default { deleteUser, createUser, updateUser, findUser, findAllUser, loginUser, searchMembers, fetchMembers, fetchBirthdayAnniversay, sendOtp, checkUserExists };

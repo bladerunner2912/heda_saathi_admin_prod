@@ -22,7 +22,7 @@ const fetchFamily = async (req: Request, res: Response) => {
   const familyId = req.body.familyId;
   let family: any = undefined;
   try {
-    family = await Family.find(familyId);
+    family = await Family.findOne(familyId);
     if (family) {
       res.status(200).json({ family });
       return;

@@ -15,6 +15,8 @@ router.post("/sendOtp", controller.sendOtp);
 
 // // router.get("/chill", controller.changeprofessionfieldquery);
 
+router.get("/checkUserExists", controller.checkUserExists);
+
 router.get("/get/:userId", controller.findUser);
 
 router.get("/get/", controller.findAllUser);
