@@ -390,6 +390,30 @@ const updateUser = async (req: Request, res: Response) => {
 
 
 
+const updateUserDetails = async (req: Request, res: Response) => {
+
+  const { id, dob } = req.body
+  if (dob) {
+    req.body.dob = new Date(dob);
+  }
+  Logging.info(id);
+  var filter = { "_id": new mongoose.Types.ObjectId(id) };
+  var update = req.body;
+  Logging.info(filter);
+  try {
+    const user = await User.findOneAndUpdate(filter, {
+      $set: {
+        "profession": req.body.profession, "dob": req.body.dob, "state": req.body.state, "email": req.body.email, "name": req.body.name, "city": req.body.city,
+      }
+    });
+    res.status(200).json({ user });
+  } catch (e) {
+    Logging.error(e);
+  }
+}
+
+
+
 const deleteUser = async (req: Request, res: Response) => {
   const uid = req.params.userId;
 
@@ -403,4 +427,4 @@ const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
-export default { deleteUser, createUser, updateUser, findUser, findAllUser, loginUser, searchMembers, fetchMembers, fetchBirthdayAnniversay, sendOtp, checkUserExists };
+export default { deleteUser, createUser, updateUser, findUser, findAllUser, loginUser, searchMembers, fetchMembers, fetchBirthdayAnniversay, sendOtp, checkUserExists, updateUserDetails };

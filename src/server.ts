@@ -7,7 +7,7 @@ import userRoutes from "./routes/user";
 import familyRoutes from "./routes/family";
 import advertismentRoutes from "./routes/advertisment";
 import AWS from "aws-sdk";
-import User from "./models/user";
+import notificationRoutes from "./routes/notifications";
 
 const router = express();
 
@@ -62,6 +62,7 @@ const startServer = () => {
   router.use("/users", userRoutes);
   router.use("/families", familyRoutes);
   router.use("/advertisments", advertismentRoutes);
+  router.use("/notifications", notificationRoutes);
 
   /*S3BUCKET INIT AND UPLOADPIC FUNCTION */
   // ! ANY OBJECT CALLED.

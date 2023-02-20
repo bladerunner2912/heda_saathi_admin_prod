@@ -25,6 +25,8 @@ router.get("/birthdayAnniversary", controller.fetchBirthdayAnniversay);
 
 router.post("/update/:userId", controller.updateUser);
 
+router.post("/updateUserDetails/", controller.updateUserDetails);
+
 router.delete("/delete/:userId", controller.deleteUser);
 
 export = router;

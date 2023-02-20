@@ -17,6 +17,7 @@ export interface IUser {
   createdAt: Date;
   profession: String;
   email: String;
+  unviewedNotificaitons: Array<Types.ObjectId>;
 }
 
 export interface IUserModel extends IUser, Document {}
@@ -36,6 +37,10 @@ const UserSchema: Schema = new Schema(
     pincode: { type: String },
     profession: { type: String },
     email: { type: String },
+    unviewedNotifications: {
+      type: [Schema.Types.ObjectId],
+      ref: "Notificaiton",
+    }
   },
   {
     timestamps: { createdAt: "createdAt" },
