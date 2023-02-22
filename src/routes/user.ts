@@ -13,6 +13,8 @@ router.post("/searchMembers", controller.searchMembers);
 
 router.post("/sendOtp", controller.sendOtp);
 
+router.post("/searchFunction", controller.searchFunction);
+
 // // router.get("/chill", controller.changeprofessionfieldquery);
 
 router.post("/checkUserExists", controller.checkUserExists);

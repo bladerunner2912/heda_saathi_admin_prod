@@ -64,7 +64,9 @@ const searchMembers = (
             'userId': fetchedUsers[i]['_id'],
             'name': fetchedUsers[i]['name'],
             'phone': fetchedUsers[i]['phone'],
-            'place': `${fetchedUsers[i]['city']},${fetchedUsers[i]['state']},${fetchedUsers[i]['pincode']}`,
+            'city': fetchedUsers[i]['city'],
+            "state": fetchedUsers[i]['state'],
+            "pincode": fetchedUsers[i]['pincode'],
             'profession': fetchedUsers[i]['profession'],
             'gender': fetchedUsers[i]['gender'],
             'email': fetchedUsers[i]['email'],
@@ -74,6 +76,54 @@ const searchMembers = (
         );
       }
       res.status(200).json({ users });
+
+    } catch (e) {
+      Logging.error(e);
+      res.status(400).json({ message: `${e}` });
+    }
+  }
+)
+
+//searchFunction
+const searchFunction = (
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const users = [];
+      const query = req.body.query;
+      const regex = new RegExp(query, 'i');
+      const fetchedUsers = await User.find({
+        $or: [
+          { phone: regex },
+          { city: regex },
+          { state: regex },
+          { name: regex },
+          { profession: regex },
+          { pincode: regex },
+        ]
+      }).collation({
+        locale: "en",
+        strength: 1,
+        caseLevel: false
+      });
+      const length = fetchedUsers.length;
+      for (var i = 0; i < fetchedUsers.length; i++) {
+        users.push(
+          {
+            'userId': fetchedUsers[i]['_id'],
+            'name': fetchedUsers[i]['name'],
+            'phone': fetchedUsers[i]['phone'],
+            'city': fetchedUsers[i]['city'],
+            "state": fetchedUsers[i]['state'],
+            "pincode": fetchedUsers[i]['pincode'],
+            'profession': fetchedUsers[i]['profession'],
+            'gender': fetchedUsers[i]['gender'],
+            'email': fetchedUsers[i]['email'],
+            'avatar': fetchedUsers[i]['avatar'],
+            'dob': fetchedUsers[i]['dob'],
+          }
+        );
+      }
+      res.status(200).json({ "lenght": length, users });
 
     } catch (e) {
       Logging.error(e);
@@ -109,7 +159,9 @@ const fetchMembers = (
               'userId': users[i]['_id'],
               'name': users[i]['name'],
               'phone': users[i]['phone'],
-              'place': `${users[i]['city']},${users[i]['state']},${users[i]['pincode']}`,
+              'city': users[i]['city'],
+              "state": users[i]['state'],
+              "pincode": users[i]['pincode'],
               'profession': users[i]['profession'],
               'gender': users[i]['gender'],
               'email': users[i]['email'],
@@ -158,7 +210,9 @@ const fetchBirthdayAnniversay = (async (req: Request, res: Response, next: NextF
           'userId': users[i]['_id'],
           'name': users[i]['name'],
           'phone': users[i]['phone'],
-          'place': `${users[i]['city']},${users[i]['state']},${users[i]['pincode']}`,
+          'city': users[i]['city'],
+          "state": users[i]['state'],
+          "pincode": users[i]['pincode'],
           'profession': users[i]['profession'],
           'gender': users[i]['gender'],
           'email': users[i]['email'],
@@ -182,7 +236,9 @@ const fetchBirthdayAnniversay = (async (req: Request, res: Response, next: NextF
           'userId': users[i]['_id'],
           'name': users[i]['name'],
           'phone': users[i]['phone'],
-          'place': `${users[i]['city']},${users[i]['state']},${users[i]['pincode']}`,
+          'city': users[i]['city'],
+          "state": users[i]['state'],
+          "pincode": users[i]['pincode'],
           'profession': users[i]['profession'],
           'gender': users[i]['gender'],
           'email': users[i]['email'],
@@ -208,7 +264,9 @@ const fetchBirthdayAnniversay = (async (req: Request, res: Response, next: NextF
           'userId': users[i]['_id'],
           'name': users[i]['name'],
           'phone': users[i]['phone'],
-          'place': `${users[i]['city']},${users[i]['state']},${users[i]['pincode']}`,
+          'city': users[i]['city'],
+          "state": users[i]['state'],
+          "pincode": users[i]['pincode'],
           'profession': users[i]['profession'],
           'gender': users[i]['gender'],
           'email': users[i]['email'],
@@ -233,7 +291,9 @@ const fetchBirthdayAnniversay = (async (req: Request, res: Response, next: NextF
           'userId': users[i]['_id'],
           'name': users[i]['name'],
           'phone': users[i]['phone'],
-          'place': `${users[i]['city']},${users[i]['state']},${users[i]['pincode']}`,
+          'city': users[i]['city'],
+          "state": users[i]['state'],
+          "pincode": users[i]['pincode'],
           'profession': users[i]['profession'],
           'gender': users[i]['gender'],
           'email': users[i]['email'],
@@ -286,41 +346,31 @@ const sendOtp = (async (req: Request, res: Response, next: NextFunction) => {
 }
 );
 
+// updateUserDetails
+const updateUserDetails = async (req: Request, res: Response) => {
 
-
-
-
-
-
-
-// const changeprofessionfieldquery = (
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//       await User.updateMany({ "profession ": { $exists: true } }, { $rename: { "profession ": "profession" } });
-//       res.status(200).json({ message: 'Sucess' });
-//     } catch (e) {
-//       Logging.error(e);
-//       res.status(400).json({ message: `${e}` });
-//     }
-//   }
-// )
-
-//editUser
-const editUser = (
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-
-      await User.findByIdAndUpdate(...req.params.id, {
-        ...req.body
-      });
-
-
-    } catch (e) {
-      Logging.error(e);
-      res.status(400).json({ message: e })
-    }
+  const { id, dob } = req.body
+  if (dob) {
+    req.body.dob = new Date(dob);
   }
-);
+  Logging.info(id);
+  var filter = { "_id": new mongoose.Types.ObjectId(id) };
+  var update = req.body;
+  Logging.info(filter);
+  try {
+    const user = await User.findOneAndUpdate(filter, {
+      $set: {
+        "profession": req.body.profession, "dob": req.body.dob, "state": req.body.state, "email": req.body.email, "name": req.body.name, "city": req.body.city,
+      }
+    });
+    res.status(200).json({ user });
+  } catch (e) {
+    Logging.error(e);
+  }
+}
+
+
+
 
 
 
@@ -347,6 +397,26 @@ const createUser = async (req: Request, res: Response) => {
     return res.status(500).json({ e });
   }
 };
+
+
+//editUser
+const editUser = (
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+      await User.findByIdAndUpdate(...req.params.id, {
+        ...req.body
+      });
+
+
+    } catch (e) {
+      Logging.error(e);
+      res.status(400).json({ message: e })
+    }
+  }
+);
+
+
 
 const findUser = async (req: Request, res: Response) => {
   const uid = req.params.userId;
@@ -390,28 +460,6 @@ const updateUser = async (req: Request, res: Response) => {
 
 
 
-const updateUserDetails = async (req: Request, res: Response) => {
-
-  const { id, dob } = req.body
-  if (dob) {
-    req.body.dob = new Date(dob);
-  }
-  Logging.info(id);
-  var filter = { "_id": new mongoose.Types.ObjectId(id) };
-  var update = req.body;
-  Logging.info(filter);
-  try {
-    const user = await User.findOneAndUpdate(filter, {
-      $set: {
-        "profession": req.body.profession, "dob": req.body.dob, "state": req.body.state, "email": req.body.email, "name": req.body.name, "city": req.body.city,
-      }
-    });
-    res.status(200).json({ user });
-  } catch (e) {
-    Logging.error(e);
-  }
-}
-
 
 
 const deleteUser = async (req: Request, res: Response) => {
@@ -427,4 +475,4 @@ const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
-export default { deleteUser, createUser, updateUser, findUser, findAllUser, loginUser, searchMembers, fetchMembers, fetchBirthdayAnniversay, sendOtp, checkUserExists, updateUserDetails };
+export default { deleteUser, createUser, updateUser, findUser, findAllUser, loginUser, searchMembers, fetchMembers, fetchBirthdayAnniversay, sendOtp, checkUserExists, updateUserDetails, searchFunction };

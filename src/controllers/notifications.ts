@@ -49,8 +49,11 @@ const createNotification = (async (req: Request, res: Response,) => {
 const viewedANotification = (async (req: Request, res: Response) => {
     try {
 
-        const uid = new mongoose.Types.ObjectId(req.body.id);
+        console.log(req.body);
+        const uid = new mongoose.Types.ObjectId(req.body.uid);
         const nid = new mongoose.Types.ObjectId(req.body.nid);
+        console.log(uid);
+        console.log(nid);
         const user = await User.updateOne({ "_id": uid },
             {
                 $pull: {
@@ -60,6 +63,7 @@ const viewedANotification = (async (req: Request, res: Response) => {
         );
 
         if (user) {
+            console.log(user)
             res.status(200).json(true);
         }
         else {
