@@ -88,42 +88,150 @@ const searchMembers = (
 const searchFunction = (
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const users = [];
-      const query = req.body.query;
-      const regex = new RegExp(query, 'i');
-      const fetchedUsers = await User.find({
-        $or: [
-          { phone: regex },
-          { city: regex },
-          { state: regex },
-          { name: regex },
-          { profession: regex },
-          { pincode: regex },
-        ]
-      }).collation({
-        locale: "en",
-        strength: 1,
-        caseLevel: false
-      });
-      const length = fetchedUsers.length;
-      for (var i = 0; i < fetchedUsers.length; i++) {
-        users.push(
-          {
-            'userId': fetchedUsers[i]['_id'],
-            'name': fetchedUsers[i]['name'],
-            'phone': fetchedUsers[i]['phone'],
-            'city': fetchedUsers[i]['city'],
-            "state": fetchedUsers[i]['state'],
-            "pincode": fetchedUsers[i]['pincode'],
-            'profession': fetchedUsers[i]['profession'],
-            'gender': fetchedUsers[i]['gender'],
-            'email': fetchedUsers[i]['email'],
-            'avatar': fetchedUsers[i]['avatar'],
-            'dob': fetchedUsers[i]['dob'],
-          }
-        );
+      var users = [];
+      const name = req.body.name;
+      const place = req.body.place;
+      const profession = req.body.profession;
+      const phone = req.body.phone;
+
+      if (name != "" && name) {
+        const regex = new RegExp(name, 'i');
+        const fetchedUsers = await User.find({
+          name: regex
+        }).collation({
+          locale: "en",
+          strength: 1,
+          caseLevel: false
+        });
+
+        for (var i = 0; i < fetchedUsers.length; i++) {
+          users.push(
+            {
+              'userId': fetchedUsers[i]['_id'],
+              'name': fetchedUsers[i]['name'],
+              'phone': fetchedUsers[i]['phone'],
+              'city': fetchedUsers[i]['city'],
+              "state": fetchedUsers[i]['state'],
+              "pincode": fetchedUsers[i]['pincode'],
+              'profession': fetchedUsers[i]['profession'],
+              'gender': fetchedUsers[i]['gender'],
+              'email': fetchedUsers[i]['email'],
+              'avatar': fetchedUsers[i]['avatar'],
+              'dob': fetchedUsers[i]['dob'],
+            }
+          );
+        };
       }
-      res.status(200).json({ "lenght": length, users });
+      if (phone != "" && phone) {
+        const regex = new RegExp(phone, 'i');
+        const fetchedUsers = await User.find({
+          phone: regex
+        }).collation({
+          locale: "en",
+          strength: 1,
+          caseLevel: false
+        });
+        for (var i = 0; i < fetchedUsers.length; i++) {
+          var alreadyIn = false;
+          for (var i = 0; i < users.length; i++) {
+            if (users[i]['userId'] == fetchedUsers[i]['_id']) {
+              alreadyIn = true;
+              break;
+            }
+          }
+          if (!alreadyIn)
+            users.push(
+              {
+                'userId': fetchedUsers[i]['_id'],
+                'name': fetchedUsers[i]['name'],
+                'phone': fetchedUsers[i]['phone'],
+                'city': fetchedUsers[i]['city'],
+                "state": fetchedUsers[i]['state'],
+                "pincode": fetchedUsers[i]['pincode'],
+                'profession': fetchedUsers[i]['profession'],
+                'gender': fetchedUsers[i]['gender'],
+                'email': fetchedUsers[i]['email'],
+                'avatar': fetchedUsers[i]['avatar'],
+                'dob': fetchedUsers[i]['dob'],
+              }
+            );
+        };
+      }
+      if (profession != "" && profession) {
+        const regex = new RegExp(profession, 'i');
+        const fetchedUsers = await User.find({
+          profession: regex
+        }).collation({
+          locale: "en",
+          strength: 1,
+          caseLevel: false
+        });
+        for (var i = 0; i < fetchedUsers.length; i++) {
+          var alreadyIn = false;
+          for (var i = 0; i < users.length; i++) {
+            if (users[i]['userId'] == fetchedUsers[i]['_id']) {
+              alreadyIn = true;
+              break;
+            }
+          }
+          if (!alreadyIn)
+            users.push(
+              {
+                'userId': fetchedUsers[i]['_id'],
+                'name': fetchedUsers[i]['name'],
+                'phone': fetchedUsers[i]['phone'],
+                'city': fetchedUsers[i]['city'],
+                "state": fetchedUsers[i]['state'],
+                "pincode": fetchedUsers[i]['pincode'],
+                'profession': fetchedUsers[i]['profession'],
+                'gender': fetchedUsers[i]['gender'],
+                'email': fetchedUsers[i]['email'],
+                'avatar': fetchedUsers[i]['avatar'],
+                'dob': fetchedUsers[i]['dob'],
+              }
+            );
+        };
+      }
+      if (place != "" && place) {
+        const regex = new RegExp(place, 'i');
+        const fetchedUsers = await User.find({
+          $or: [
+            { city: regex },
+            { state: regex },
+            { pincode: regex },
+          ]
+        }).collation({
+          locale: "en",
+          strength: 1,
+          caseLevel: false
+        });
+        for (var i = 0; i < fetchedUsers.length; i++) {
+          var alreadyIn = false;
+          for (var i = 0; i < users.length; i++) {
+            if (users[i]['userId'] == fetchedUsers[i]['_id']) {
+              alreadyIn = true;
+              break;
+            }
+          }
+          if (!alreadyIn)
+            users.push(
+              {
+                'userId': fetchedUsers[i]['_id'],
+                'name': fetchedUsers[i]['name'],
+                'phone': fetchedUsers[i]['phone'],
+                'city': fetchedUsers[i]['city'],
+                "state": fetchedUsers[i]['state'],
+                "pincode": fetchedUsers[i]['pincode'],
+                'profession': fetchedUsers[i]['profession'],
+                'gender': fetchedUsers[i]['gender'],
+                'email': fetchedUsers[i]['email'],
+                'avatar': fetchedUsers[i]['avatar'],
+                'dob': fetchedUsers[i]['dob'],
+              }
+            );
+        };
+      }
+      res.status(200).json({ users });
 
     } catch (e) {
       Logging.error(e);
@@ -419,7 +527,7 @@ const editUser = (
 
 
 const findUser = async (req: Request, res: Response) => {
-  const uid = req.params.userId;
+  const uid = req.params['userId'];
 
   try {
     const user = await User.findById(uid);
