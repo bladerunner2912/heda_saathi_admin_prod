@@ -85,160 +85,233 @@ const searchMembers = (
 )
 
 //searchFunction
-const searchFunction = (
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      var users = [];
-      const name = req.body.name;
-      const place = req.body.place;
-      const profession = req.body.profession;
-      const phone = req.body.phone;
+// const searchFunction = (
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     var users = [];
+//     const name = req.body.name;
+//     const place = req.body.place;
+//     const profession = req.body.profession;
+//     const phone = req.body.phone;
+//     var regex;
+//     var fetchedUsers = [];
+//     var alreadyIn: boolean = false;
+//     try {
 
-      if (name != "" && name) {
-        const regex = new RegExp(name, 'i');
-        const fetchedUsers = await User.find({
-          name: regex
-        }).collation({
-          locale: "en",
-          strength: 1,
-          caseLevel: false
-        });
+//       if (name != "" && name) {
+//         regex = new RegExp(name, 'i');
+//         fetchedUsers = await User.find({
+//           name: regex
+//         }).collation({
+//           locale: "en",
+//           strength: 1,
+//           caseLevel: false
+//         });
 
-        for (var i = 0; i < fetchedUsers.length; i++) {
-          users.push(
-            {
-              'userId': fetchedUsers[i]['_id'],
-              'name': fetchedUsers[i]['name'],
-              'phone': fetchedUsers[i]['phone'],
-              'city': fetchedUsers[i]['city'],
-              "state": fetchedUsers[i]['state'],
-              "pincode": fetchedUsers[i]['pincode'],
-              'profession': fetchedUsers[i]['profession'],
-              'gender': fetchedUsers[i]['gender'],
-              'email': fetchedUsers[i]['email'],
-              'avatar': fetchedUsers[i]['avatar'],
-              'dob': fetchedUsers[i]['dob'],
-            }
-          );
-        };
-      }
-      if (phone != "" && phone) {
-        const regex = new RegExp(phone, 'i');
-        const fetchedUsers = await User.find({
-          phone: regex
-        }).collation({
-          locale: "en",
-          strength: 1,
-          caseLevel: false
-        });
-        for (var i = 0; i < fetchedUsers.length; i++) {
-          var alreadyIn = false;
-          for (var i = 0; i < users.length; i++) {
-            if (users[i]['userId'] == fetchedUsers[i]['_id']) {
-              alreadyIn = true;
-              break;
-            }
-          }
-          if (!alreadyIn)
-            users.push(
-              {
-                'userId': fetchedUsers[i]['_id'],
-                'name': fetchedUsers[i]['name'],
-                'phone': fetchedUsers[i]['phone'],
-                'city': fetchedUsers[i]['city'],
-                "state": fetchedUsers[i]['state'],
-                "pincode": fetchedUsers[i]['pincode'],
-                'profession': fetchedUsers[i]['profession'],
-                'gender': fetchedUsers[i]['gender'],
-                'email': fetchedUsers[i]['email'],
-                'avatar': fetchedUsers[i]['avatar'],
-                'dob': fetchedUsers[i]['dob'],
-              }
-            );
-        };
-      }
-      if (profession != "" && profession) {
-        const regex = new RegExp(profession, 'i');
-        const fetchedUsers = await User.find({
-          profession: regex
-        }).collation({
-          locale: "en",
-          strength: 1,
-          caseLevel: false
-        });
-        for (var i = 0; i < fetchedUsers.length; i++) {
-          var alreadyIn = false;
-          for (var i = 0; i < users.length; i++) {
-            if (users[i]['userId'] == fetchedUsers[i]['_id']) {
-              alreadyIn = true;
-              break;
-            }
-          }
-          if (!alreadyIn)
-            users.push(
-              {
-                'userId': fetchedUsers[i]['_id'],
-                'name': fetchedUsers[i]['name'],
-                'phone': fetchedUsers[i]['phone'],
-                'city': fetchedUsers[i]['city'],
-                "state": fetchedUsers[i]['state'],
-                "pincode": fetchedUsers[i]['pincode'],
-                'profession': fetchedUsers[i]['profession'],
-                'gender': fetchedUsers[i]['gender'],
-                'email': fetchedUsers[i]['email'],
-                'avatar': fetchedUsers[i]['avatar'],
-                'dob': fetchedUsers[i]['dob'],
-              }
-            );
-        };
-      }
-      if (place != "" && place) {
-        const regex = new RegExp(place, 'i');
-        const fetchedUsers = await User.find({
-          $or: [
-            { city: regex },
-            { state: regex },
-            { pincode: regex },
-          ]
-        }).collation({
-          locale: "en",
-          strength: 1,
-          caseLevel: false
-        });
-        for (var i = 0; i < fetchedUsers.length; i++) {
-          var alreadyIn = false;
-          for (var i = 0; i < users.length; i++) {
-            if (users[i]['userId'] == fetchedUsers[i]['_id']) {
-              alreadyIn = true;
-              break;
-            }
-          }
-          if (!alreadyIn)
-            users.push(
-              {
-                'userId': fetchedUsers[i]['_id'],
-                'name': fetchedUsers[i]['name'],
-                'phone': fetchedUsers[i]['phone'],
-                'city': fetchedUsers[i]['city'],
-                "state": fetchedUsers[i]['state'],
-                "pincode": fetchedUsers[i]['pincode'],
-                'profession': fetchedUsers[i]['profession'],
-                'gender': fetchedUsers[i]['gender'],
-                'email': fetchedUsers[i]['email'],
-                'avatar': fetchedUsers[i]['avatar'],
-                'dob': fetchedUsers[i]['dob'],
-              }
-            );
-        };
-      }
-      res.status(200).json({ users });
+//         for (var i = 0; i < fetchedUsers.length; i++) {
+//           users.push(
+//             {
+//               'userId': fetchedUsers[i]['_id'],
+//               'name': fetchedUsers[i]['name'],
+//               'phone': fetchedUsers[i]['phone'],
+//               'city': fetchedUsers[i]['city'],
+//               "state": fetchedUsers[i]['state'],
+//               "pincode": fetchedUsers[i]['pincode'],
+//               'profession': fetchedUsers[i]['profession'],
+//               'gender': fetchedUsers[i]['gender'],
+//               'email': fetchedUsers[i]['email'],
+//               'avatar': fetchedUsers[i]['avatar'],
+//               'dob': fetchedUsers[i]['dob'],
+//             }
+//           );
+//         };
+//       }
 
-    } catch (e) {
-      Logging.error(e);
-      res.status(400).json({ message: `${e}` });
+//       fetchedUsers = [];
+
+//       if (phone != "" && phone) {
+//         regex = new RegExp(phone, 'i');
+//         fetchedUsers = await User.find({
+//           phone: regex
+//         }).collation({
+//           locale: "en",
+//           strength: 1,
+//           caseLevel: false
+//         });
+//         for (var i = 0; i < fetchedUsers.length; i++) {
+//           alreadyIn = false;
+//           for (var j = 0; j < users.length; j++) {
+//             if (users[j]['userId'] == fetchedUsers[i]['_id']) {
+//               alreadyIn = true;
+//               break;
+//             }
+//           }
+//           if (!alreadyIn)
+//             users.push(
+//               {
+//                 'userId': fetchedUsers[i]['_id'],
+//                 'name': fetchedUsers[i]['name'],
+//                 'phone': fetchedUsers[i]['phone'],
+//                 'city': fetchedUsers[i]['city'],
+//                 "state": fetchedUsers[i]['state'],
+//                 "pincode": fetchedUsers[i]['pincode'],
+//                 'profession': fetchedUsers[i]['profession'],
+//                 'gender': fetchedUsers[i]['gender'],
+//                 'email': fetchedUsers[i]['email'],
+//                 'avatar': fetchedUsers[i]['avatar'],
+//                 'dob': fetchedUsers[i]['dob'],
+//               }
+//             );
+//         };
+//       }
+
+//       fetchedUsers = [];
+
+
+//       if (profession != "" && profession) {
+//         const regex = new RegExp(profession, 'i');
+//         fetchedUsers = await User.find({
+//           profession: regex
+//         }).collation({
+//           locale: "en",
+//           strength: 1,
+//           caseLevel: false
+//         });
+//         for (var i = 0; i < fetchedUsers.length; i++) {
+//           alreadyIn = false;
+//           for (var j = 0; j < users.length; j++) {
+//             if (users[j]['userId'] == fetchedUsers[i]['_id']) {
+//               alreadyIn = true;
+//               break;
+//             }
+//           }
+//           if (!alreadyIn)
+//             users.push(
+//               {
+//                 'userId': fetchedUsers[i]['_id'],
+//                 'name': fetchedUsers[i]['name'],
+//                 'phone': fetchedUsers[i]['phone'],
+//                 'city': fetchedUsers[i]['city'],
+//                 "state": fetchedUsers[i]['state'],
+//                 "pincode": fetchedUsers[i]['pincode'],
+//                 'profession': fetchedUsers[i]['profession'],
+//                 'gender': fetchedUsers[i]['gender'],
+//                 'email': fetchedUsers[i]['email'],
+//                 'avatar': fetchedUsers[i]['avatar'],
+//                 'dob': fetchedUsers[i]['dob'],
+//               }
+//             );
+//         };
+//       }
+
+//       fetchedUsers = [];
+
+//       if (place != "" && place) {
+//         const regex = new RegExp(place, 'i');
+//         fetchedUsers = await User.find({
+//           $or: [
+//             { city: regex },
+//             { state: regex },
+//             { pincode: regex },
+//           ]
+//         }).collation({
+//           locale: "en",
+//           strength: 1,
+//           caseLevel: false
+//         });
+//         for (var i = 0; i < fetchedUsers.length; i++) {
+//           alreadyIn = false;
+//           for (var j = 0; j < users.length; j++) {
+//             if (users[j]['userId'] == fetchedUsers[i]['_id']) {
+//               alreadyIn = true;
+//               break;
+//             }
+//           }
+//           if (!alreadyIn)
+//             users.push(
+//               {
+//                 'userId': fetchedUsers[i]['_id'],
+//                 'name': fetchedUsers[i]['name'],
+//                 'phone': fetchedUsers[i]['phone'],
+//                 'city': fetchedUsers[i]['city'],
+//                 "state": fetchedUsers[i]['state'],
+//                 "pincode": fetchedUsers[i]['pincode'],
+//                 'profession': fetchedUsers[i]['profession'],
+//                 'gender': fetchedUsers[i]['gender'],
+//                 'email': fetchedUsers[i]['email'],
+//                 'avatar': fetchedUsers[i]['avatar'],
+//                 'dob': fetchedUsers[i]['dob'],
+//               }
+//             );
+//         };
+//       }
+//       res.status(200).json({ users });
+//     } catch (e) {
+//       Logging.error(e);
+//       res.status(400).json({ message: `${e}` });
+//     }
+//   }
+// )
+//searchFunction
+const searchFunction = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const name = req.body.name;
+    const place = req.body.place;
+    const profession = req.body.profession;
+    const phone = req.body.phone;
+    const users = [];
+    const query: any = [];
+
+    if (name && name != '') {
+      query.push({ name: RegExp(name, "i") })
     }
+
+    if (phone && phone != '') {
+      query.push({ phone: RegExp(phone, "i") })
+    }
+
+    if (profession && profession != '') {
+      query.push({ profession: RegExp(profession, "i") })
+
+    }
+
+    if (place && place != '') {
+      query.push({ city: new RegExp(place, 'i') },
+        { state: new RegExp(place, 'i') },
+        { pincode: new RegExp(place, 'i') },)
+    }
+
+    Logging.info(query);
+
+    const fetchedUsers = await User.find({ $or: query }).collation({
+      locale: "en",
+      strength: 1,
+      caseLevel: false
+    });;
+    // console.log(fetchedUsers.length)
+
+    for (var i = 0; i < fetchedUsers.length; i++) {
+      users.push(
+        {
+          'userId': fetchedUsers[i]['_id'],
+          'name': fetchedUsers[i]['name'],
+          'phone': fetchedUsers[i]['phone'],
+          'city': fetchedUsers[i]['city'],
+          "state": fetchedUsers[i]['state'],
+          "pincode": fetchedUsers[i]['pincode'],
+          'profession': fetchedUsers[i]['profession'],
+          'gender': fetchedUsers[i]['gender'],
+          'email': fetchedUsers[i]['email'],
+          'avatar': fetchedUsers[i]['avatar'],
+          'dob': fetchedUsers[i]['dob'],
+        }
+      );
+    }
+    res.status(200).json({ users });
+  } catch (e) {
+    Logging.error(e);
+    res.status(400).json({ message: `${e}` });
   }
-)
+}
 
 //fetchMembers
 const fetchMembers = (
@@ -390,7 +463,10 @@ const fetchBirthdayAnniversay = (async (req: Request, res: Response, next: NextF
           { $expr: { $gt: [{ $month: "$dob" }, todayMonth + 1] } },
           { $expr: { $lt: [{ $month: "$dob" }, todayMonth + 7] } }
         ]
-      }).sort("1").limit(10 - pastEventsLength - presentEventsLength - upcomingEvents.length);
+      }).sort({
+        dobMonth: 1
+      }
+      ).limit(10 - pastEventsLength - presentEventsLength - upcomingEvents.length);
     }
 
     for (var i = 0; i < users.length; i++) {
@@ -466,12 +542,11 @@ const updateUserDetails = async (req: Request, res: Response) => {
   var update = req.body;
   Logging.info(filter);
   try {
-    const user = await User.findOneAndUpdate(filter, {
+    await User.findOneAndUpdate(filter, {
       $set: {
         "profession": req.body.profession, "dob": req.body.dob, "state": req.body.state, "email": req.body.email, "name": req.body.name, "city": req.body.city,
       }
-    });
-    res.status(200).json({ user });
+    }).then(user => res.status(200).json({ user }));
   } catch (e) {
     Logging.error(e);
   }
@@ -508,21 +583,21 @@ const createUser = async (req: Request, res: Response) => {
 
 
 //editUser
-const editUser = (
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
+// const editUser = (
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     try {
 
-      await User.findByIdAndUpdate(...req.params.id, {
-        ...req.body
-      });
+//       await User.findByIdAndUpdate(...req.params.id, {
+//         ...req.body
+//       });
 
 
-    } catch (e) {
-      Logging.error(e);
-      res.status(400).json({ message: e })
-    }
-  }
-);
+//     } catch (e) {
+//       Logging.error(e);
+//       res.status(400).json({ message: e })
+//     }
+//   }
+// );
 
 
 
