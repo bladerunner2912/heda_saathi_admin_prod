@@ -100,6 +100,10 @@ const startServer = () => {
     });
   });
 
+  router.get("/",(req,res,next) => {
+    res.status(200).json({message : "Heda-Saathi-Admin-Prod"})
+  })
+
   /*HealthCheck*/
   router.get("/ping", (_req, res, _next) =>
     res.status(200).json({ message: "pong" })

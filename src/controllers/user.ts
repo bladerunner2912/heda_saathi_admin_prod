@@ -7,82 +7,83 @@ import otpGenerator from "../library/otp";
 import { createAccessToken } from "../middleware/auth.middlewares";
 import User from "../models/user";
 
-
 //CLIENT SIDE APIS
 
-
 //loginUser
-const loginUser = (
-  async (req: Request, res: Response, next: NextFunction) => {
+const loginUser = async (req: Request, res: Response, next: NextFunction) => {
+  const phone = req.body.phone;
+  if (phone == "") {
+    res.status(500).json({ message: "No Number Provided" });
+  }
 
-    const phone = req.body.phone;
-    if (phone == '') {
-      res.status(500).json({ message: 'No Number Provided' });
+  try {
+    const user = await User.findOne({ phone: phone });
+
+    if (user) {
+      res
+        .status(200)
+        .json({ user, accessToken: await createAccessToken(user._id) });
     }
-
-    try {
-      const user = await User.findOne({ phone: phone });
-
-      if (user) { res.status(200).json({ user, accessToken: await createAccessToken(user._id) }); }
-    } catch (e) {
-      Logging.error(e);
-      res.status(400).json({ message: "Authentication Failed" });
-    }
-  });
-
+  } catch (e) {
+    Logging.error(e);
+    res.status(400).json({ message: "Authentication Failed" });
+  }
+};
 
 //searchMemebrs
-const searchMembers = (
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      let date = new Date(req.body.birth);
+const searchMembers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    let date = new Date(req.body.birth);
 
-      let users: any[] = [];
-      let fetchedUsers = await User.find({ ...req.body });
-      let placeFetchedUsers = [];
-      // Logging.info(req.body.city);
+    let users: any[] = [];
+    let fetchedUsers = await User.find({ ...req.body });
+    let placeFetchedUsers = [];
+    // Logging.info(req.body.city);
 
-      // ? city filter compares with the address state pincode
-      if (req.body.city) {
-        let place = req.body.city;
-        for (var i = 0; i < fetchedUsers.length; i++) {
-          let temp = fetchedUsers[i];
-          if (temp['city'] != place || temp['state'] != place || temp['pincode'] != place) {
-            Logging.info(temp);
-            continue;
-          } else {
-            placeFetchedUsers.push(temp);
-          }
-        }
-        fetchedUsers = placeFetchedUsers;
-      }
-      // Logging.info(fetchedUsers);
+    // ? city filter compares with the address state pincode
+    if (req.body.city) {
+      let place = req.body.city;
       for (var i = 0; i < fetchedUsers.length; i++) {
-
-        users.push(
-          {
-            'userId': fetchedUsers[i]['_id'],
-            'name': fetchedUsers[i]['name'],
-            'phone': fetchedUsers[i]['phone'],
-            'city': fetchedUsers[i]['city'],
-            "state": fetchedUsers[i]['state'],
-            "pincode": fetchedUsers[i]['pincode'],
-            'profession': fetchedUsers[i]['profession'],
-            'gender': fetchedUsers[i]['gender'],
-            'email': fetchedUsers[i]['email'],
-            'avatar': fetchedUsers[i]['avatar'],
-            'dob': fetchedUsers[i]['dob'],
-          }
-        );
+        let temp = fetchedUsers[i];
+        if (
+          temp["city"] != place ||
+          temp["state"] != place ||
+          temp["pincode"] != place
+        ) {
+          Logging.info(temp);
+          continue;
+        } else {
+          placeFetchedUsers.push(temp);
+        }
       }
-      res.status(200).json({ users });
-
-    } catch (e) {
-      Logging.error(e);
-      res.status(400).json({ message: `${e}` });
+      fetchedUsers = placeFetchedUsers;
     }
+    // Logging.info(fetchedUsers);
+    for (var i = 0; i < fetchedUsers.length; i++) {
+      users.push({
+        userId: fetchedUsers[i]["_id"],
+        name: fetchedUsers[i]["name"],
+        phone: fetchedUsers[i]["phone"],
+        city: fetchedUsers[i]["city"],
+        state: fetchedUsers[i]["state"],
+        pincode: fetchedUsers[i]["pincode"],
+        profession: fetchedUsers[i]["profession"],
+        gender: fetchedUsers[i]["gender"],
+        email: fetchedUsers[i]["email"],
+        avatar: fetchedUsers[i]["avatar"],
+        dob: fetchedUsers[i]["dob"],
+      });
+    }
+    res.status(200).json({ users });
+  } catch (e) {
+    Logging.error(e);
+    res.status(400).json({ message: `${e}` });
   }
-)
+};
 
 //searchFunction
 // const searchFunction = (
@@ -165,7 +166,6 @@ const searchMembers = (
 //       }
 
 //       fetchedUsers = [];
-
 
 //       if (profession != "" && profession) {
 //         const regex = new RegExp(profession, 'i');
@@ -252,7 +252,11 @@ const searchMembers = (
 //   }
 // )
 //searchFunction
-const searchFunction = async (req: Request, res: Response, next: NextFunction) => {
+const searchFunction = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const name = req.body.name;
     const place = req.body.place;
@@ -261,23 +265,24 @@ const searchFunction = async (req: Request, res: Response, next: NextFunction) =
     const users = [];
     const query: any = [];
 
-    if (name && name != '') {
-      query.push({ name: RegExp(name, "i") })
+    if (name && name != "") {
+      query.push({ name: RegExp(name, "i") });
     }
 
-    if (phone && phone != '') {
-      query.push({ phone: RegExp(phone, "i") })
+    if (phone && phone != "") {
+      query.push({ phone: RegExp(phone, "i") });
     }
 
-    if (profession && profession != '') {
-      query.push({ profession: RegExp(profession, "i") })
-
+    if (profession && profession != "") {
+      query.push({ profession: RegExp(profession, "i") });
     }
 
-    if (place && place != '') {
-      query.push({ city: new RegExp(place, 'i') },
-        { state: new RegExp(place, 'i') },
-        { pincode: new RegExp(place, 'i') },)
+    if (place && place != "") {
+      query.push(
+        { city: new RegExp(place, "i") },
+        { state: new RegExp(place, "i") },
+        { pincode: new RegExp(place, "i") }
+      );
     }
 
     Logging.info(query);
@@ -285,84 +290,82 @@ const searchFunction = async (req: Request, res: Response, next: NextFunction) =
     const fetchedUsers = await User.find({ $or: query }).collation({
       locale: "en",
       strength: 1,
-      caseLevel: false
-    });;
+      caseLevel: false,
+    });
     // console.log(fetchedUsers.length)
 
     for (var i = 0; i < fetchedUsers.length; i++) {
-      users.push(
-        {
-          'userId': fetchedUsers[i]['_id'],
-          'name': fetchedUsers[i]['name'],
-          'phone': fetchedUsers[i]['phone'],
-          'city': fetchedUsers[i]['city'],
-          "state": fetchedUsers[i]['state'],
-          "pincode": fetchedUsers[i]['pincode'],
-          'profession': fetchedUsers[i]['profession'],
-          'gender': fetchedUsers[i]['gender'],
-          'email': fetchedUsers[i]['email'],
-          'avatar': fetchedUsers[i]['avatar'],
-          'dob': fetchedUsers[i]['dob'],
-        }
-      );
+      users.push({
+        userId: fetchedUsers[i]["_id"],
+        name: fetchedUsers[i]["name"],
+        phone: fetchedUsers[i]["phone"],
+        city: fetchedUsers[i]["city"],
+        state: fetchedUsers[i]["state"],
+        pincode: fetchedUsers[i]["pincode"],
+        profession: fetchedUsers[i]["profession"],
+        gender: fetchedUsers[i]["gender"],
+        email: fetchedUsers[i]["email"],
+        avatar: fetchedUsers[i]["avatar"],
+        dob: fetchedUsers[i]["dob"],
+      });
     }
     res.status(200).json({ users });
   } catch (e) {
     Logging.error(e);
     res.status(400).json({ message: `${e}` });
   }
-}
+};
 
 //fetchMembers
-const fetchMembers = (
-  async (req: Request, res: Response, next: NextFunction) => {
+const fetchMembers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  let ids: Array<string> = req.body.ids;
+  let objectId: Array<mongoose.Types.ObjectId> = [];
+  console.log(req.body.ids);
+  let saathis: Array<any> = [];
 
-    let ids: Array<string> = req.body.ids;
-    let objectId: Array<mongoose.Types.ObjectId> = [];
-    console.log(req.body.ids);
-    let saathis: Array<any> = [];
+  // for (var id in ids) {
+  //   objectId.push(new mongoose.Types.ObjectId(`${id}`));
+  // }
 
-    // for (var id in ids) {
-    //   objectId.push(new mongoose.Types.ObjectId(`${id}`));
-    // }
-
-    if (ids.length > 0)
-      try {
-        const users = await User.find({
-          "_id": {
-            $in: ids,
-          }
+  if (ids.length > 0)
+    try {
+      const users = await User.find({
+        _id: {
+          $in: ids,
+        },
+      });
+      for (var i = 0; i < users.length; i++) {
+        saathis.push({
+          userId: users[i]["_id"],
+          name: users[i]["name"],
+          phone: users[i]["phone"],
+          city: users[i]["city"],
+          state: users[i]["state"],
+          pincode: users[i]["pincode"],
+          profession: users[i]["profession"],
+          gender: users[i]["gender"],
+          email: users[i]["email"],
+          avatar: users[i]["avatar"],
+          dob: users[i]["dob"],
         });
-        for (var i = 0; i < users.length; i++) {
-
-          saathis.push(
-            {
-              'userId': users[i]['_id'],
-              'name': users[i]['name'],
-              'phone': users[i]['phone'],
-              'city': users[i]['city'],
-              "state": users[i]['state'],
-              "pincode": users[i]['pincode'],
-              'profession': users[i]['profession'],
-              'gender': users[i]['gender'],
-              'email': users[i]['email'],
-              'avatar': users[i]['avatar'],
-              'dob': users[i]['dob'],
-            }
-          );
-        }
-        res.status(200).json({ saathis });
-      } catch (e) {
-        Logging.error(e);
-        res.status(400).json({ message: `${e}` });
       }
-  }
-);
-
+      res.status(200).json({ saathis });
+    } catch (e) {
+      Logging.error(e);
+      res.status(400).json({ message: `${e}` });
+    }
+};
 
 //fetchBirthdayAnniversary
-const fetchBirthdayAnniversay = (async (req: Request, res: Response, next: NextFunction) => {
-
+const fetchBirthdayAnniversay = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   let presentEvents: Array<any> = [];
   let upcomingEvents: Array<any> = [];
   let pastEvents: Array<any> = [];
@@ -381,52 +384,48 @@ const fetchBirthdayAnniversay = (async (req: Request, res: Response, next: NextF
     let users = await User.find({
       $and: [
         { $expr: { $eq: [{ $dayOfMonth: "$dob" }, todayDay] } },
-        { $expr: { $eq: [{ $month: "$dob" }, todayMonth + 1] } }
-      ]
+        { $expr: { $eq: [{ $month: "$dob" }, todayMonth + 1] } },
+      ],
     });
 
     for (var i = 0; i < users.length; i++) {
-      presentEvents.push(
-        {
-          'userId': users[i]['_id'],
-          'name': users[i]['name'],
-          'phone': users[i]['phone'],
-          'city': users[i]['city'],
-          "state": users[i]['state'],
-          "pincode": users[i]['pincode'],
-          'profession': users[i]['profession'],
-          'gender': users[i]['gender'],
-          'email': users[i]['email'],
-          'avatar': users[i]['avatar'],
-          'dob': users[i]['dob'],
-        }
-      );
+      presentEvents.push({
+        userId: users[i]["_id"],
+        name: users[i]["name"],
+        phone: users[i]["phone"],
+        city: users[i]["city"],
+        state: users[i]["state"],
+        pincode: users[i]["pincode"],
+        profession: users[i]["profession"],
+        gender: users[i]["gender"],
+        email: users[i]["email"],
+        avatar: users[i]["avatar"],
+        dob: users[i]["dob"],
+      });
     }
 
     users = await User.find({
       $and: [
         { $expr: { $lte: [{ $dayOfMonth: "$dob" }, todayDay] } },
         { $expr: { $gte: [{ $dayOfMonth: "$dob" }, todayDay - 5] } },
-        { $expr: { $eq: [{ $month: "$dob" }, todayMonth + 1] } }
-      ]
+        { $expr: { $eq: [{ $month: "$dob" }, todayMonth + 1] } },
+      ],
     });
 
     for (var i = 0; i < users.length; i++) {
-      pastEvents.push(
-        {
-          'userId': users[i]['_id'],
-          'name': users[i]['name'],
-          'phone': users[i]['phone'],
-          'city': users[i]['city'],
-          "state": users[i]['state'],
-          "pincode": users[i]['pincode'],
-          'profession': users[i]['profession'],
-          'gender': users[i]['gender'],
-          'email': users[i]['email'],
-          'avatar': users[i]['avatar'],
-          'dob': users[i]['dob'],
-        }
-      );
+      pastEvents.push({
+        userId: users[i]["_id"],
+        name: users[i]["name"],
+        phone: users[i]["phone"],
+        city: users[i]["city"],
+        state: users[i]["state"],
+        pincode: users[i]["pincode"],
+        profession: users[i]["profession"],
+        gender: users[i]["gender"],
+        email: users[i]["email"],
+        avatar: users[i]["avatar"],
+        dob: users[i]["dob"],
+      });
     }
 
     presentEventsLength = presentEvents.length;
@@ -435,135 +434,129 @@ const fetchBirthdayAnniversay = (async (req: Request, res: Response, next: NextF
     users = await User.find({
       $and: [
         { $expr: { $gt: [{ $dayOfMonth: "$dob" }, todayDay] } },
-        { $expr: { $eq: [{ $month: "$dob" }, todayMonth + 1] } }
-      ]
-    }).sort("1").limit(10 - pastEventsLength - presentEventsLength);
+        { $expr: { $eq: [{ $month: "$dob" }, todayMonth + 1] } },
+      ],
+    })
+      .sort("1")
+      .limit(10 - pastEventsLength - presentEventsLength);
 
     for (var i = 0; i < users.length; i++) {
-      upcomingEvents.push(
-        {
-          'userId': users[i]['_id'],
-          'name': users[i]['name'],
-          'phone': users[i]['phone'],
-          'city': users[i]['city'],
-          "state": users[i]['state'],
-          "pincode": users[i]['pincode'],
-          'profession': users[i]['profession'],
-          'gender': users[i]['gender'],
-          'email': users[i]['email'],
-          'avatar': users[i]['avatar'],
-          'dob': users[i]['dob'],
-        }
-      );
+      upcomingEvents.push({
+        userId: users[i]["_id"],
+        name: users[i]["name"],
+        phone: users[i]["phone"],
+        city: users[i]["city"],
+        state: users[i]["state"],
+        pincode: users[i]["pincode"],
+        profession: users[i]["profession"],
+        gender: users[i]["gender"],
+        email: users[i]["email"],
+        avatar: users[i]["avatar"],
+        dob: users[i]["dob"],
+      });
     }
 
     if (pastEventsLength + presentEventsLength + upcomingEvents.length < 10) {
       users = await User.find({
         $and: [
           { $expr: { $gt: [{ $month: "$dob" }, todayMonth + 1] } },
-          { $expr: { $lt: [{ $month: "$dob" }, todayMonth + 7] } }
-        ]
-      }).sort({
-        dobMonth: 1
-      }
-      ).limit(10 - pastEventsLength - presentEventsLength - upcomingEvents.length);
+          { $expr: { $lt: [{ $month: "$dob" }, todayMonth + 7] } },
+        ],
+      })
+        .sort({
+          dobMonth: 1,
+        })
+        .limit(
+          10 - pastEventsLength - presentEventsLength - upcomingEvents.length
+        );
     }
 
     for (var i = 0; i < users.length; i++) {
-      upcomingEvents.push(
-        {
-          'userId': users[i]['_id'],
-          'name': users[i]['name'],
-          'phone': users[i]['phone'],
-          'city': users[i]['city'],
-          "state": users[i]['state'],
-          "pincode": users[i]['pincode'],
-          'profession': users[i]['profession'],
-          'gender': users[i]['gender'],
-          'email': users[i]['email'],
-          'avatar': users[i]['avatar'],
-          'dob': users[i]['dob'],
-        }
-      );
+      upcomingEvents.push({
+        userId: users[i]["_id"],
+        name: users[i]["name"],
+        phone: users[i]["phone"],
+        city: users[i]["city"],
+        state: users[i]["state"],
+        pincode: users[i]["pincode"],
+        profession: users[i]["profession"],
+        gender: users[i]["gender"],
+        email: users[i]["email"],
+        avatar: users[i]["avatar"],
+        dob: users[i]["dob"],
+      });
     }
     res.status(200).json({ presentEvents, pastEvents, upcomingEvents });
   } catch (e) {
     Logging.error(e);
     res.status(400).json({ message: `${e}` });
   }
-})
+};
 
-
-const checkUserExists = (async (req: Request, res: Response, next: NextFunction) => {
-
+const checkUserExists = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const phone = req.body.phone;
-    const user = await User.find({"phone": phone });
-             
-    if (user) {
+    const user = await User.find({ phone: phone });
+
+    if (user.length != 0) {
       res.status(200).json(true);
-      return;
+    } else {
+      res.status(200).json(false);
     }
-    res.status(200).json(false);
+    return;
   } catch (e) {
     res.status(400).json(false);
   }
-});
+};
 
-const sendOtp = (async (req: Request, res: Response, next: NextFunction) => {
-
- 
+const sendOtp = async (req: Request, res: Response, next: NextFunction) => {
   const phoneNumber = req.body.phone;
   const otp = otpGenerator();
   console.log(req.body);
   console.log(phoneNumber);
   try {
     const response = await axios.get(
-      `https://www.fast2sms.com/dev/bulkV2?authorization=${config.otp.apiKey}&sender_id=FSTSMS&message=Your%20OTP%20is%20${otp}&language=english&route=p&numbers=${phoneNumber}`,
+      `https://www.fast2sms.com/dev/bulkV2?authorization=${config.otp.apiKey}&sender_id=FSTSMS&message=Your%20OTP%20is%20${otp}&language=english&route=p&numbers=${phoneNumber}`
     );
     console.log(response.data);
     res.status(200).json({ otp });
   } catch (error) {
-    res.status(400)
+    res.status(400);
     console.error(error);
   }
-}
-);
+};
 
 // updateUserDetails
 const updateUserDetails = async (req: Request, res: Response) => {
-
-  const { id, dob } = req.body
+  const { id, dob } = req.body;
   if (dob) {
     req.body.dob = new Date(dob);
   }
   Logging.info(id);
-  var filter = { "_id": new mongoose.Types.ObjectId(id) };
+  var filter = { _id: new mongoose.Types.ObjectId(id) };
   var update = req.body;
   Logging.info(filter);
   try {
     await User.findOneAndUpdate(filter, {
       $set: {
-        "profession": req.body.profession, "dob": req.body.dob, "state": req.body.state, "email": req.body.email, "name": req.body.name, "city": req.body.city,
-      }
-    }).then(user => res.status(200).json({ user }));
+        profession: req.body.profession,
+        dob: req.body.dob,
+        state: req.body.state,
+        email: req.body.email,
+        name: req.body.name,
+        city: req.body.city,
+      },
+    }).then((user) => res.status(200).json({ user }));
   } catch (e) {
     Logging.error(e);
   }
-}
-
-
-
-
-
-
+};
 
 ////////////////////////////////////////////////////
-
-
-
-
-
 
 // ? ADMIN SIDE
 
@@ -581,7 +574,6 @@ const createUser = async (req: Request, res: Response) => {
   }
 };
 
-
 //editUser
 // const editUser = (
 //   async (req: Request, res: Response, next: NextFunction) => {
@@ -591,7 +583,6 @@ const createUser = async (req: Request, res: Response) => {
 //         ...req.body
 //       });
 
-
 //     } catch (e) {
 //       Logging.error(e);
 //       res.status(400).json({ message: e })
@@ -599,10 +590,8 @@ const createUser = async (req: Request, res: Response) => {
 //   }
 // );
 
-
-
 const findUser = async (req: Request, res: Response) => {
-  const uid = req.params['userId'];
+  const uid = req.params["userId"];
 
   try {
     const user = await User.findById(uid);
@@ -630,20 +619,16 @@ const updateUser = async (req: Request, res: Response) => {
   Logging.info(uid.slice(1));
   const avatar = req.body.avatar;
   Logging.info(avatar);
-  var filter = { "_id": new mongoose.Types.ObjectId(uid.slice(1)) };
-  var update = { "avatar": avatar }
+  var filter = { _id: new mongoose.Types.ObjectId(uid.slice(1)) };
+  var update = { avatar: avatar };
   Logging.info(filter);
   try {
     await User.findOneAndUpdate(filter, update);
-    res.status(200).json({ message: 'Working bitch' });
+    res.status(200).json({ message: "Working bitch" });
   } catch (e) {
     Logging.error(e);
   }
-}
-
-
-
-
+};
 
 const deleteUser = async (req: Request, res: Response) => {
   const uid = req.params.userId;
@@ -658,4 +643,18 @@ const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
-export default { deleteUser, createUser, updateUser, findUser, findAllUser, loginUser, searchMembers, fetchMembers, fetchBirthdayAnniversay, sendOtp, checkUserExists, updateUserDetails, searchFunction };
+export default {
+  deleteUser,
+  createUser,
+  updateUser,
+  findUser,
+  findAllUser,
+  loginUser,
+  searchMembers,
+  fetchMembers,
+  fetchBirthdayAnniversay,
+  sendOtp,
+  checkUserExists,
+  updateUserDetails,
+  searchFunction,
+};
