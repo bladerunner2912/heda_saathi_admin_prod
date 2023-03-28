@@ -498,7 +498,7 @@ const checkUserExists = (async (req: Request, res: Response, next: NextFunction)
 
   try {
     const phone = req.body.phone;
-    const user = await User.findOne({"phone": phone });
+    const user = await User.find({"phone": phone });
              
     if (user) {
       res.status(200).json(true);
