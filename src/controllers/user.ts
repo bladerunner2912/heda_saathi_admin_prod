@@ -501,7 +501,8 @@ const checkUserExists = async (
   try {
     const phone = req.body.phone;
     const user = await User.find({ phone: phone });
-
+    console.log(req.body);
+    console.log(user);
     if (user.length != 0) {
       res.status(200).json(true);
     } else {
