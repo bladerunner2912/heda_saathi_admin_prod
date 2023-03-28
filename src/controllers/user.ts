@@ -497,9 +497,9 @@ const fetchBirthdayAnniversay = (async (req: Request, res: Response, next: NextF
 const checkUserExists = (async (req: Request, res: Response, next: NextFunction) => {
 
   try {
-
-    const user = await User.findOne({ ...req.body });
-
+    const phone = req.body.phone;
+    const user = await User.findOne({"phone": phone });
+             
     if (user) {
       res.status(200).json(true);
       return;
@@ -512,7 +512,7 @@ const checkUserExists = (async (req: Request, res: Response, next: NextFunction)
 
 const sendOtp = (async (req: Request, res: Response, next: NextFunction) => {
 
-
+ 
   const phoneNumber = req.body.phone;
   const otp = otpGenerator();
   console.log(req.body);
