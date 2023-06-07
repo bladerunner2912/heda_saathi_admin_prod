@@ -1,7 +1,7 @@
 import mongoose, { Types, Document, Schema } from "mongoose";
 
 export interface IFamily {
-  memberIds: Array<Types.ObjectId>;
+  memberIds: String[];
   metaData: Number[][];
 }
 

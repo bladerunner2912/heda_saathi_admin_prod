@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-
 import mongoose from "mongoose";
 import Logging from "../library/Logging";
 import Family from "../models/family";
+import User from "../models/user";
 
 const createFamiy = async (req: Request, res: Response) => {
   const family = new Family({
@@ -20,30 +20,35 @@ const createFamiy = async (req: Request, res: Response) => {
 
 const fetchFamily = async (req: Request, res: Response) => {
   const familyId = req.body.familyId;
-  let family: any = undefined;
   try {
-    family = await Family.findOne(familyId);
+  const family = await Family.findOne(familyId);
     if (family) {
-      res.status(200).json({ family });
+  const userIds = family['memberIds'];
+  const user = await User.find({_id : {$in: userIds}});  
+      res.status(200).json({ "family" : family, "user" : user });
       return;
     } else {
-      res.status(200).json({ "Message": `No Family Exists` });
-      return
+      res.status(200).json({ Message: `No Family Exists` });
+      return;
     }
   } catch (e) {
     Logging.error(e);
-    res.status(400).json({ "message": e });
+    res.status(400).json({ message: e });
     return;
   }
 };
 
 const fetchFamilies = async (req: Request, res: Response) => {
-  return await Family.find()
-    .then((families) => res.sendStatus(200).json({ families }))
-    .catch((error) => {
-      Logging.error(error);
-      res.sendStatus(500).json({ error });
-    });
+  try {
+    const families = await Family.find({});
+    if (families) {
+      res.status(200).json({ families });
+    } else {
+      res.status(200).json({message : 'No families babes'})
+    }
+  } catch (e) {
+    res.status(400).json({ message: e });
+  }
 };
 
 const deleteFamily = async (req: Request, res: Response) => {

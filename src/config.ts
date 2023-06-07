@@ -3,7 +3,8 @@ dotenv.config();
 
 const MONGO_USERNAME = process.env.MONGO_USERNAME || "";
 const MONGO_PASSWORD = process.env.MONGO_PASSWORD || "";
-const MONGO_URL = `mongodb+srv://${MONGO_USERNAME}:${MONGO_PASSWORD}@devhedasaathi.pwxdhtj.mongodb.net/?retryWrites=true&w=majority`;
+const DB_PROD = process.env.DB_PROD || "";
+const MONGO_URL = `mongodb+srv://${MONGO_USERNAME}:${MONGO_PASSWORD}@devhedasaathi.pwxdhtj.mongodb.net/${DB_PROD}?retryWrites=true&w=majority`;
 
 const ACCESS_KEY_ID = process.env.ACCESS_KEY_ID || "";
 const SECRET_ACCESS_KEY = process.env.SECRET_ACCESS_KEY || "";
