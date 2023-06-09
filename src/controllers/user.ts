@@ -499,6 +499,7 @@ const checkUserExists = async (
   next: NextFunction
 ) => {
   try {
+    console.log(req.body);
     const phone = req.body.phone;
     const user = await User.find({ phone: phone });
     console.log(req.body);
@@ -562,17 +563,20 @@ const updateUserDetails = async (req: Request, res: Response) => {
 // ? ADMIN SIDE
 
 const createUser = async (req: Request, res: Response) => {
-  const user = new User({
-    _id: new mongoose.Types.ObjectId(),
-    ...req.body,
-  });
+  console.log(req.body);
+  // const user = new User({
+  //   _id: new mongoose.Types.ObjectId(),
+  //   ...req.body,
+  // });
 
-  try {
-    await user.save();
-    return res.status(200).json({ user });
-  } catch (e) {
-    return res.status(500).json({ e });
-  }
+  // try {
+  //   await user.save();
+  //   return res.status(200).json({ user });
+  // } catch (e) {
+  //   return res.status(500).json({ e });
+  // }
+    return res.status(200).json({message : "Fine" });
+
 };
 
 //editUser

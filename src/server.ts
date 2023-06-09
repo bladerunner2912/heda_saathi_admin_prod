@@ -8,6 +8,7 @@ import familyRoutes from "./routes/family";
 import advertismentRoutes from "./routes/advertisment";
 import AWS from "aws-sdk";
 import notificationRoutes from "./routes/notifications";
+import bodyParser from "body-parser";
 
 const router = express();
 
@@ -38,8 +39,8 @@ const startServer = () => {
     next();
   });
 
-  router.use(express.urlencoded({ extended: true }));
-  router.use(express.json()); //making sure all data we getting is in json.
+  router.use(bodyParser.urlencoded({ extended: true }));
+  router.use(bodyParser.json()); //making sure all data we getting is in json.
 
   //Rules of our API//
   router.use((req, res, next) => {
@@ -121,7 +122,6 @@ const startServer = () => {
     .createServer(router)
     .listen(config.server.port, () => {
       Logging.info(`Server is running on port ${config.server.port}`)
-
     });
 
 }

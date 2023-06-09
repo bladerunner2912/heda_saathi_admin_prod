@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/server.ts",
   "scripts": {
-    "start": "ts-node src/server"
+    "start": "ts-node src/server",
+    "dev:server": "nodemon --watch './**/*.ts' --exec ts-node src/server.ts"
   },
   "repository": {
     "type": "git",
